@@ -68,12 +68,20 @@
       align-items: center;
       gap: 8px;
       z-index: 10;
+      text-decoration: none;
     }
 
-    .btn-neon:hover, .btn-neon:active {
+    /* إصلاح الزرار اللي بيفضل منور عند اللمس */
+    @media (hover: hover) {
+      .btn-neon:hover {
+        background: var(--neon-blue);
+        color: var(--bg-dark);
+        box-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue);
+      }
+    }
+    .btn-neon:active {
       background: var(--neon-blue);
       color: var(--bg-dark);
-      box-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue);
     }
 
     #intro-screen {
@@ -268,6 +276,13 @@
     </header>
 
     <div id="home-screen" class="screen active">
+      <!-- زر متابعة قناة الواتساب -->
+      <div style="margin-bottom: 20px; text-align: center;">
+        <a href="https://whatsapp.com/channel/0029Vb7oJOpBKfhvWKl57w46" target="_blank" class="btn-neon" style="border-color:#25D366; color:#25D366; width:100%; justify-content:center;">
+          <i class="fab fa-whatsapp" style="font-size:1.2rem;"></i> متابعة قناة الواتساب الرسمية
+        </a>
+      </div>
+
       <input type="text" class="search-bar" id="search-box" placeholder="ابحث عن قصة أو كاتب..." onkeyup="filterAll()">
       
       <h3 style="margin-bottom: 12px; color: var(--neon-blue);"><i class="fas fa-pen-nib"></i> الكُتاب</h3>
@@ -343,9 +358,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <script>
-    const firebaseConfig = {
-      databaseURL: "https://whisper-novels-default-rtdb.firebaseio.com"
-    };
+    const firebaseConfig = { databaseURL: "https://whisper-novels-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -356,9 +369,6 @@
 
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
-
-    window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
-    window.addEventListener('touchmove', (e) => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
 
     for(let i=0; i<60; i++) {
       particles.push({
@@ -375,13 +385,6 @@
         p.x += p.dx; p.y += p.dy;
         if(p.x < 0 || p.x > canvas.width) p.dx *= -1;
         if(p.y < 0 || p.y > canvas.height) p.dy *= -1;
-
-        if(mouse.x) {
-          let dx = mouse.x - p.x;
-          let dy = mouse.y - p.y;
-          let dist = Math.sqrt(dx*dx + dy*dy);
-          if(dist < mouse.radius) { p.x -= dx/15; p.y -= dy/15; }
-        }
       });
       requestAnimationFrame(drawParticles);
     }
@@ -419,7 +422,7 @@
     }
     
     window.onload = function() { typeWriter(); };
-      let appData = { authors: [], stories: [], settings: { title: "همس الروايات" } };
+                                                         let appData = { authors: [], stories: [], settings: { title: "همس الروايات" } };
     let currentCategory = 'الكل';
     let currentStoryTitle = '';
     let currentAuthorName = '';
@@ -442,15 +445,16 @@
         }
       });
 
+      // جلب البيانات بالـ ID الدقيق لتفادي مشكلة مسح عناصر التحكم
       db.ref('authors').on('value', snapshot => {
         const val = snapshot.val();
-        appData.authors = val ? Object.values(val) : [];
+        appData.authors = val ? Object.keys(val).map(key => ({ _key: key, ...val[key] })) : [];
         renderAuthors(appData.authors);
       });
 
       db.ref('stories').on('value', snapshot => {
         const val = snapshot.val();
-        appData.stories = val ? Object.values(val) : [];
+        appData.stories = val ? Object.keys(val).map(key => ({ _key: key, ...val[key] })) : [];
         renderStories(appData.stories);
       });
     }
@@ -514,6 +518,11 @@
     function openStory(title) {
       const story = appData.stories.find(s => s.title === title);
       if(!story) return;
+
+      // تسجيل زيادة عدد المشاهدات في الفايربيس
+      if (story._key) {
+        db.ref(`stories/${story._key}/views`).set((story.views || 0) + 1);
+      }
 
       currentStoryTitle = title;
       document.getElementById('view-story-title').innerText = story.title;
