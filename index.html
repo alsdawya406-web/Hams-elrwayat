@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>منصة همس الروايات</title>
+  <title>همس الروايات</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
@@ -15,16 +15,7 @@
       --neon-purple: #7B2CBF;
       --text-light: #E0E1DD;
       --text-dim: #8D99AE;
-      --font-size-base: 1.1rem;
-    }
-
-    body.theme-sepia {
-      --bg-dark: #1F1B14;
-      --card-bg: #2D271D;
-      --text-light: #E8D8B8;
-      --text-dim: #A89878;
-      --neon-blue: #E0A96D;
-      --neon-purple: #8C5A2B;
+      --font-size-base: 1rem;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
@@ -33,405 +24,173 @@
       background-color: var(--bg-dark);
       color: var(--text-light);
       min-height: 100vh;
-      overflow-x: hidden;
-      transition: background 0.4s, color 0.4s;
+      padding-bottom: 60px;
     }
 
-    #particles {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-      pointer-events: none;
+    /* هيدر وشريط علوي */
+    header {
+      background: rgba(11, 19, 43, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 15px 20px;
+      position: sticky; top: 0; z-index: 1000;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid var(--neon-purple);
     }
 
-    #reading-progress {
-      position: fixed;
-      top: 0; left: 0;
-      height: 4px;
-      background: var(--neon-blue);
-      width: 0%;
-      z-index: 1000;
+    .logo { color: var(--neon-blue); font-size: 1.5rem; font-weight: 900; }
+
+    .header-btns { display: flex; gap: 10px; align-items: center; }
+
+    .btn-whatsapp {
+      background: #25D366; color: #fff;
+      padding: 8px 14px; border-radius: 20px;
+      text-decoration: none; font-weight: bold; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 6px;
+      box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);
+    }
+
+    /* المحتوى الرئيسي */
+    container { display: block; max-width: 800px; margin: 20px auto; padding: 0 15px; }
+
+    .search-box {
+      width: 100%; padding: 12px; border-radius: 10px;
+      border: 1px solid var(--neon-purple); background: var(--card-bg);
+      color: #fff; margin-bottom: 20px; font-size: 1rem; outline: none;
+    }
+
+    .cards-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;
+    }
+
+    .card {
+      background: var(--card-bg); border-radius: 12px; padding: 15px;
+      border: 1px solid rgba(255,255,255,0.05); text-align: center;
+      transition: 0.3s;
+    }
+
+    .card:hover { transform: translateY(-5px); border-color: var(--neon-blue); }
+
+    /* الصورة الدائرية للكاتب والقصة */
+    .avatar-circle {
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-blue);
+      object-fit: cover;
+      margin: 0 auto 10px auto;
+      display: block;
       box-shadow: 0 0 10px var(--neon-blue);
     }
 
     .btn-neon {
-      background: transparent;
-      color: var(--neon-blue);
-      border: 1px solid var(--neon-blue);
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      z-index: 10;
+      background: transparent; border: 1px solid var(--neon-blue);
+      color: var(--neon-blue); padding: 8px 16px; border-radius: 6px;
+      cursor: pointer; margin-top: 10px; transition: 0.3s; font-weight: bold;
     }
 
-    .btn-neon:hover, .btn-neon:active {
-      background: var(--neon-blue);
-      color: var(--bg-dark);
-      box-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue);
+    .btn-neon:hover { background: var(--neon-blue); color: var(--bg-dark); }
+
+    /* شاشة القراءة */
+    #view-story-modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg-dark); z-index: 2000; overflow-y: auto; padding: 20px 15px;
     }
 
-    /* الشاشة الترحيبية */
-    #intro-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: var(--bg-dark);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      text-align: center;
-      z-index: 9999;
+    .story-content {
+      max-width: 700px; margin: 0 auto;
+      font-size: var(--font-size-base); line-height: 1.9; white-space: pre-line;
     }
 
-    .typewriter-text {
-      font-size: 1.8rem;
-      min-height: 120px;
-      max-width: 800px;
-      margin-bottom: 30px;
-      font-weight: 700;
-      color: var(--neon-blue);
-      text-shadow: 0 0 12px rgba(0,245,212,0.4);
-      line-height: 1.6;
+    #reading-progress {
+      position: fixed; top: 0; right: 0; height: 4px; background: var(--neon-blue); width: 0%; z-index: 3000;
     }
 
-    /* التطبيق الرئيسي */
-    #main-app {
-      display: none;
-      position: relative;
-      z-index: 1;
-      padding-bottom: 80px;
+    /* شريط أدوات القارئ */
+    .reader-tools {
+      display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;
     }
 
-    header {
-      padding: 18px 25px;
-      background: rgba(11, 19, 43, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 2px solid var(--neon-purple);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 900;
+    .tool-btn {
+      background: var(--card-bg); border: 1px solid var(--neon-purple);
+      color: var(--text-light); padding: 8px 12px; border-radius: 8px; cursor: pointer;
     }
 
-    .designer-tag {
-      font-size: 0.85rem;
-      color: var(--text-dim);
+    /* تنسيقات التعليقات */
+    .comment-box {
+      background: var(--card-bg); padding: 10px; border-radius: 8px; margin-top: 10px;
+      border-right: 3px solid var(--neon-purple);
     }
 
-    .screen {
-      display: none;
-      padding: 25px;
-      max-width: 1100px;
-      margin: auto;
-      animation: fadeIn 0.4s ease-out;
+    /* --- تنسيق الطباعة وتنزيل ה-PDF لتكون الخلفية بيضاء والنص أسود صريح --- */
+    @media print {
+      body * { visibility: hidden; }
+      #view-story-modal, #view-story-modal * { visibility: visible; }
+      #view-story-modal {
+        position: absolute; left: 0; top: 0; width: 100%;
+        background: #ffffff !important; color: #000000 !important;
+        padding: 0 !important;
+      }
+      .reader-tools, #reading-progress, .btn-whatsapp, header, button { display: none !important; }
+      .story-content {
+        color: #000000 !important; font-size: 14pt !important;
+        line-height: 1.6 !important; background: #ffffff !important;
+      }
     }
-
-    .screen.active { display: block; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .search-bar {
-      width: 100%;
-      padding: 14px 20px;
-      border-radius: 10px;
-      border: 1px solid var(--neon-blue);
-      background: var(--card-bg);
-      color: #fff;
-      margin-bottom: 25px;
-      font-size: 1rem;
-      outline: none;
-    }
-
-    .categories {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      padding-bottom: 10px;
-      margin-bottom: 25px;
-      scrollbar-width: none;
-    }
-
-    .cat-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--text-dim);
-      color: var(--text-light);
-      padding: 8px 18px;
-      border-radius: 20px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: 0.3s;
-    }
-
-    .cat-btn.active {
-      border-color: var(--neon-purple);
-      color: var(--neon-purple);
-      box-shadow: 0 0 12px var(--neon-purple);
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-      gap: 22px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 22px;
-      border: 1px solid rgba(255,255,255,0.05);
-      transition: 0.3s;
-      position: relative;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      border-color: var(--neon-blue);
-      box-shadow: 0 5px 20px rgba(0,245,212,0.2);
-    }
-
-    .story-body {
-      font-size: var(--font-size-base);
-      line-height: 2.2;
-      white-space: pre-wrap;
-      background: rgba(0,0,0,0.25);
-      padding: 30px;
-      border-radius: 12px;
-      margin: 20px 0;
-      border-right: 4px solid var(--neon-blue);
-    }
-
-    .reading-tools {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 15px 0;
-      padding: 10px;
-      background: var(--card-bg);
-      border-radius: 10px;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0; left: 0;
-      width: 100%;
-      background: var(--card-bg);
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-      border-top: 1px solid var(--neon-purple);
-      z-index: 999;
-    }
-
-    .bottom-nav button {
-      background: none;
-      border: none;
-      color: var(--text-dim);
-      font-size: 0.85rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-    }
-
-    .bottom-nav button.active { color: var(--neon-blue); }
-    .comment-box { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-bottom: 10px; border-right: 3px solid var(--neon-purple); }
   </style>
 </head>
 <body>
 
   <div id="reading-progress"></div>
-  <canvas id="particles"></canvas>
 
-  <!-- השاشة الترحيبية المستقلة -->
-  <div id="intro-screen">
-    <div id="typewriter" class="typewriter-text"></div>
-    <button class="btn-neon" onclick="nextIntro()">التالي <i class="fas fa-arrow-left"></i></button>
-  </div>
+  <header>
+    <div class="logo" id="site-logo">همس الروايات</div>
+    <div class="header-btns">
+      <a href="https://whatsapp.com/channel/0029Vb7oJOpBKfhvWKl57w46" target="_blank" class="btn-whatsapp">
+        <i class="fab fa-whatsapp"></i> قناة الواتساب
+      </a>
+    </div>
+  </header>
 
-  <!-- التطبيق الرئيسي -->
-  <div id="main-app">
-    <header>
-      <div>
-        <h1 id="site-title-disp">همس الروايات</h1>
-        <div class="designer-tag">تصميم وتطوير: أحمد السعداوي</div>
-      </div>
-    </header>
+  <container>
+    <input type="text" id="search-input" class="search-box" placeholder="ابحث عن قصة، كاتب، أو تصنيف..." oninput="renderApp()">
 
-    <!-- الرئيسية -->
-    <div id="home-screen" class="screen active">
-      <input type="text" class="search-bar" id="search-box" placeholder="ابحث عن قصة أو كاتب..." onkeyup="filterAll()">
+    <h3 style="color: var(--neon-blue); margin-bottom: 12px;"><i class="fas fa-fire"></i> أحدث القصص</h3>
+    <div class="cards-grid" id="stories-list"></div>
+
+    <h3 style="color: var(--neon-blue); margin: 25px 0 12px 0;"><i class="fas fa-pen-nib"></i> الكُتاب</h3>
+    <div class="cards-grid" id="authors-list"></div>
+  </container>
+
+  <!-- نافذة قراءة القصة -->
+  <div id="view-story-modal">
+    <div style="max-width: 700px; margin: 0 auto;">
+      <button class="btn-neon" onclick="closeStory()" style="margin-bottom: 15px;"><i class="fas fa-arrow-right"></i> عودة</button>
+      <h2 id="view-story-title" style="color: var(--neon-blue); text-align: center; margin-bottom: 10px;"></h2>
       
-      <h3 style="margin-bottom: 12px; color: var(--neon-blue);"><i class="fas fa-pen-nib"></i> الكُتاب</h3>
-      <div class="cards-grid" id="authors-list" style="margin-bottom: 30px;"></div>
-
-      <h3 style="margin-bottom: 12px; color: var(--neon-blue);"><i class="fas fa-layer-group"></i> التصنيفات</h3>
-      <div class="categories">
-        <button class="cat-btn active" onclick="filterCategory('الكل', this)">الكل</button>
-        <button class="cat-btn" onclick="filterCategory('رعب', this)">رعب</button>
-        <button class="cat-btn" onclick="filterCategory('رومانسية', this)">رومانسية</button>
-        <button class="cat-btn" onclick="filterCategory('خيال علمي', this)">خيال علمي</button>
-        <button class="cat-btn" onclick="filterCategory('أكشن', this)">أكشن</button>
+      <div class="reader-tools">
+        <button class="tool-btn" onclick="changeFontSize(0.1)"><i class="fas fa-font"></i> +</button>
+        <button class="tool-btn" onclick="changeFontSize(-0.1)"><i class="fas fa-font"></i> -</button>
+        <button class="tool-btn" onclick="speakStory()"><i class="fas fa-volume-up"></i> استماع</button>
+        <button class="tool-btn" onclick="toggleAutoScroll()"><i class="fas fa-scroll"></i> تمرير تلقائي</button>
+        <button class="tool-btn" onclick="window.print()"><i class="fas fa-file-pdf"></i> تنزيل PDF</button>
       </div>
 
-      <h3 style="margin-bottom: 12px; color: var(--neon-blue);"><i class="fas fa-book-open"></i> القصص والروايات</h3>
-      <div class="cards-grid" id="stories-list"></div>
-    </div>
+      <div class="story-content" id="view-story-body"></div>
 
-    <!-- صفحة الكاتب -->
-    <div id="author-screen" class="screen">
-      <button class="btn-neon" onclick="showScreen('home-screen')"><i class="fas fa-arrow-right"></i> رجوع</button>
-      <div class="card" style="margin: 20px 0;">
-        <h2 id="view-author-name"></h2>
-        <p id="view-author-age" style="color: var(--text-dim); margin: 5px 0;"></p>
-        <p id="view-author-bio" style="margin-bottom: 15px;"></p>
-        <button class="btn-neon" id="follow-btn" onclick="toggleFollow()"></button>
+      <!-- قسم التعليقات -->
+      <div style="margin-top: 40px; border-top: 1px solid var(--neon-purple); padding-top: 20px;">
+        <h3 style="color: var(--neon-blue); margin-bottom: 10px;">التعليقات</h3>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <input type="text" id="comment-input" class="search-box" style="margin:0;" placeholder="اكتب تعليقك...">
+          <button class="btn-neon" onclick="addComment()">إرسال</button>
+        </div>
+        <div id="comments-list"></div>
       </div>
-      <h3 style="color: var(--neon-blue); margin-bottom: 12px;">أعمال الكاتب</h3>
-      <div class="cards-grid" id="author-works"></div>
-    </div>
-
-    <!-- صفحة القصة -->
-    <div id="story-screen" class="screen">
-      <button class="btn-neon" onclick="showScreen('home-screen')"><i class="fas fa-arrow-right"></i> الرئيسية</button>
-      <h1 id="view-story-title" style="margin-top: 15px; color: var(--neon-blue);"></h1>
-      <p style="color: var(--text-dim); margin: 8px 0;">
-        الكاتب: <span id="view-story-author"></span> | التصنيف: <span id="view-story-cat"></span> | 
-        <i class="fas fa-clock"></i> <span id="read-time"></span>
-      </p>
-
-      <div class="reading-tools">
-        <button class="btn-neon" onclick="changeFontSize(1)"><i class="fas fa-search-plus"></i> تكبير الخط</button>
-        <button class="btn-neon" onclick="changeFontSize(-1)"><i class="fas fa-search-minus"></i> تصغير الخط</button>
-        <button class="btn-neon" onclick="toggleTheme()"><i class="fas fa-adjust"></i> وضع القراءة</button>
-        <button class="btn-neon" onclick="toggleAutoScroll()"><i class="fas fa-angles-down"></i> تمرير تلقائي</button>
-        <button class="btn-neon" onclick="speakStory()"><i class="fas fa-volume-up"></i> استماع</button>
-        <button class="btn-neon" onclick="window.print()"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
-        <button class="btn-neon" id="fav-btn" onclick="toggleFavorite()"></button>
-      </div>
-
-      <div class="story-body" id="view-story-body"></div>
-
-      <!-- نظام التعليقات -->
-      <div class="card comments-sec" style="margin-top: 25px;">
-        <h3><i class="fas fa-star"></i> التعليقات</h3>
-        <textarea id="comment-input" placeholder="اكتب تعليقك حول القصة..." style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--neon-blue); background:rgba(0,0,0,0.3); color:#fff; margin:10px 0;"></textarea>
-        <button class="btn-neon" onclick="addComment()">إضافة تعليق</button>
-        <div id="comments-list" style="margin-top: 15px;"></div>
-      </div>
-    </div>
-
-    <!-- المفضلة -->
-    <div id="favorites-screen" class="screen">
-      <h3 style="color: var(--neon-blue); margin-bottom: 12px;"><i class="fas fa-user-check"></i> الكُتاب المتابعون</h3>
-      <div class="cards-grid" id="followed-authors-list" style="margin-bottom: 25px;"></div>
-      <h3 style="color: var(--neon-blue); margin-bottom: 12px;"><i class="fas fa-bookmark"></i> القصص المفضلة</h3>
-      <div class="cards-grid" id="favorite-stories-list"></div>
-    </div>
-
-    <!-- شريط التنقل السفلي -->
-    <div class="bottom-nav">
-      <button class="active" onclick="showScreen('home-screen'); setNavActive(this)"><i class="fas fa-home"></i>الرئيسية</button>
-      <button onclick="showScreen('favorites-screen'); setNavActive(this)"><i class="fas fa-heart"></i>المفضلة</button>
     </div>
   </div>
-
-  <script>
-    // --- 1. الجسيمات التفاعلية ---
-    const canvas = document.getElementById('particles');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    let mouse = { x: null, y: null, radius: 120 };
-
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
-
-    window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
-    window.addEventListener('touchmove', (e) => { mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY; });
-
-    for(let i=0; i<60; i++) {
-      particles.push({
-        x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-        r: Math.random()*2 + 1, dx: (Math.random()-0.5)*1.2, dy: (Math.random()-0.5)*1.2
-      });
-    }
-
-    function drawParticles() {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = '#00F5D4';
-      particles.forEach(p => {
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
-        p.x += p.dx; p.y += p.dy;
-        if(p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if(p.y < 0 || p.y > canvas.height) p.dy *= -1;
-
-        if(mouse.x) {
-          let dx = mouse.x - p.x;
-          let dy = mouse.y - p.y;
-          let dist = Math.sqrt(dx*dx + dy*dy);
-          if(dist < mouse.radius) { p.x -= dx/15; p.y -= dy/15; }
-        }
-      });
-      requestAnimationFrame(drawParticles);
-    }
-    drawParticles();
-
-    // --- 2. الشاشة الترحيبية وتأثير الكتابة الحية المصلح ---
-    const intros = [
-      "أهلاً بك في منصة همس الروايات... المنصة التي تجمع بين الخيال والواقع.",
-      "لتشاهد الكثير من القصص والروايات والأحداث التي ستسعدك.",
-      "نحن نبذل كل مجهودنا لكي نقدم لك أفضل محتوى.. هيا بنا لنبدأ!"
-    ];
-    let currentIntro = 0, charIndex = 0, typeTimeout = null;
-
-    function typeWriter() {
-      const el = document.getElementById("typewriter");
-      if (charIndex < intros[currentIntro].length) {
-        el.innerHTML += intros[currentIntro].charAt(charIndex);
-        charIndex++;
-        typeTimeout = setTimeout(typeWriter, 40);
-      }
-    }
-
-    function nextIntro() {
-      if (typeTimeout) clearTimeout(typeTimeout);
-      currentIntro++;
-      charIndex = 0;
-      document.getElementById("typewriter").innerHTML = "";
-
-      if (currentIntro < intros.length) {
-        typeWriter();
-      } else {
-        document.getElementById('intro-screen').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        loadData();
-      }
-    }
-    
-    // تشغيل الترحيب فور التجميع
-    window.onload = function() {
-      typeWriter();
-    };
-
-    // --- 3. النظام وإدارة البيانات ---
-    let currentCategory = 'الكل';
-    let currentStoryTitle = '';
-    let currentAuthorName = '';
-    let fontSize = 1.1;
+    <script>
     let autoScrollInterval = null;
+    let fontSize = 1.0;
+    let currentStoryTitle = '';
 
     function getDB() {
       return {
@@ -442,75 +201,42 @@
       };
     }
 
-    function getUserData() {
-      return {
-        favs: JSON.parse(localStorage.getItem('user_favs') || '[]'),
-        follows: JSON.parse(localStorage.getItem('user_follows') || '[]')
-      };
-    }
-
-    function showScreen(id) {
-      document.querySelectorAll('#main-app .screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      window.scrollTo(0, 0);
-      if(id === 'favorites-screen') renderFavorites();
-    }
-
-    function setNavActive(btn) {
-      document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-
-    function loadData() {
+    function renderApp() {
       const db = getDB();
-      document.getElementById('site-title-disp').innerText = db.settings.title || 'همس الروايات';
-      renderAuthors(db.authors);
-      renderStories(db.stories);
-    }
+      const search = document.getElementById('search-input').value.toLowerCase();
 
-    function renderAuthors(authors) {
-      const list = document.getElementById('authors-list');
-      if(!authors.length) {
-        list.innerHTML = '<p style="color:var(--text-dim);">لا يوجد كُتاب حالياً.</p>';
-        return;
-      }
-      list.innerHTML = authors.map(a => `
+      // تحديث عنوان الموقع
+      document.getElementById('site-logo').innerText = db.settings.title || 'همس الروايات';
+
+      // عرض القصص
+      const storiesList = document.getElementById('stories-list');
+      const filteredStories = db.stories.filter(s => 
+        s.title.toLowerCase().includes(search) || 
+        s.author.toLowerCase().includes(search) || 
+        s.category.toLowerCase().includes(search)
+      );
+
+      storiesList.innerHTML = filteredStories.length ? filteredStories.map(s => `
         <div class="card">
+          <h4 style="color: var(--neon-blue); margin-bottom: 8px;">${s.title}</h4>
+          <p style="color: var(--text-dim); font-size: 0.9rem;">الكاتب: ${s.author}</p>
+          <p style="color: var(--neon-purple); font-size: 0.85rem; margin-top: 4px;">#${s.category}</p>
+          <button class="btn-neon" onclick="openStory('${s.title}')">قراءة القصة</button>
+        </div>
+      `).join('') : '<p style="color:var(--text-dim);">لا توجد قصص مطابقة.</p>';
+
+      // عرض الكُتاب مع الصورة الدائرية
+      const authorsList = document.getElementById('authors-list');
+      const filteredAuthors = db.authors.filter(a => a.name.toLowerCase().includes(search));
+
+      authorsList.innerHTML = filteredAuthors.length ? filteredAuthors.map(a => `
+        <div class="card">
+          <img src="${a.img || 'https://via.placeholder.com/150'}" class="avatar-circle" alt="${a.name}">
           <h4>${a.name}</h4>
-          <p style="color:var(--text-dim); font-size:0.85rem;">كاتب منصة</p>
-          <button class="btn-neon" style="margin-top:12px;" onclick="openAuthor('${a.name}')">عرض الكاتب</button>
+          <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 5px;">${a.age}</p>
+          <p style="font-size: 0.8rem; margin-top: 8px; color: var(--text-light);">${a.bio}</p>
         </div>
-      `).join('');
-    }
-
-    function renderStories(stories) {
-      const list = document.getElementById('stories-list');
-      const filtered = currentCategory === 'الكل' ? stories : stories.filter(s => s.category === currentCategory);
-      if(!filtered.length) {
-        list.innerHTML = '<p style="color:var(--text-dim);">لا توجد قصص لهذا التصنيف.</p>';
-        return;
-      }
-      list.innerHTML = filtered.map(s => `
-        <div class="card">
-          <h4>${s.title}</h4>
-          <p style="color:var(--text-dim); font-size:0.85rem;">${s.author} | ${s.category}</p>
-          <button class="btn-neon" style="margin-top:12px;" onclick="openStory('${s.title}')">قراءة القصة</button>
-        </div>
-      `).join('');
-    }
-
-    function filterCategory(cat, btn) {
-      currentCategory = cat;
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      loadData();
-    }
-
-    function filterAll() {
-      const q = document.getElementById('search-box').value.toLowerCase();
-      const db = getDB();
-      renderAuthors(db.authors.filter(a => a.name.toLowerCase().includes(q)));
-      renderStories(db.stories.filter(s => s.title.toLowerCase().includes(q) || s.author.toLowerCase().includes(q)));
+      `).join('') : '<p style="color:var(--text-dim);">لا يوجد كُتاب مطابقون.</p>';
     }
 
     function openStory(title) {
@@ -520,89 +246,28 @@
 
       currentStoryTitle = title;
       document.getElementById('view-story-title').innerText = story.title;
-      document.getElementById('view-story-author').innerText = story.author;
-      document.getElementById('view-story-cat').innerText = story.category;
       document.getElementById('view-story-body').innerText = story.body;
-
-      const words = story.body.split(' ').length;
-      document.getElementById('read-time').innerText = `${Math.max(1, Math.ceil(words / 130))} دقائق قراءة`;
-
-      const uData = getUserData();
-      document.getElementById('fav-btn').innerText = uData.favs.includes(title) ? "إزالة من المفضلة" : "إضافة للمفضلة";
-
+      document.getElementById('view-story-modal').style.display = 'block';
+      
       renderComments();
-      showScreen('story-screen');
     }
 
-    function openAuthor(name) {
-      const db = getDB();
-      const author = db.authors.find(a => a.name === name);
-      const works = db.stories.filter(s => s.author === name);
-
-      if(!author) return;
-
-      currentAuthorName = name;
-      document.getElementById('view-author-name').innerText = author.name;
-      document.getElementById('view-author-age').innerText = `السن: ${author.age}`;
-      document.getElementById('view-author-bio').innerText = author.bio;
-
-      const uData = getUserData();
-      document.getElementById('follow-btn').innerText = uData.follows.includes(name) ? "إلغاء المتابعة" : "متابعة الكاتب";
-
-      document.getElementById('author-works').innerHTML = works.map(s => `
-        <div class="card">
-          <h4>${s.title}</h4>
-          <button class="btn-neon" style="margin-top:10px;" onclick="openStory('${s.title}')">قراءة القصة</button>
-        </div>
-      `).join('');
-
-      showScreen('author-screen');
+    function closeStory() {
+      document.getElementById('view-story-modal').style.display = 'none';
+      if(autoScrollInterval) { clearInterval(autoScrollInterval); autoScrollInterval = null; }
     }
 
-    function toggleFavorite() {
-      let uData = getUserData();
-      if(uData.favs.includes(currentStoryTitle)) {
-        uData.favs = uData.favs.filter(t => t !== currentStoryTitle);
-      } else { uData.favs.push(currentStoryTitle); }
-      localStorage.setItem('user_favs', JSON.stringify(uData.favs));
-      openStory(currentStoryTitle);
-    }
-
-    function toggleFollow() {
-      let uData = getUserData();
-      if(uData.follows.includes(currentAuthorName)) {
-        uData.follows = uData.follows.filter(a => a !== currentAuthorName);
-      } else { uData.follows.push(currentAuthorName); }
-      localStorage.setItem('user_follows', JSON.stringify(uData.follows));
-      openAuthor(currentAuthorName);
-    }
-
-    function renderFavorites() {
-      const db = getDB();
-      const uData = getUserData();
-      const favStories = db.stories.filter(s => uData.favs.includes(s.title));
-      const favAuthors = db.authors.filter(a => uData.follows.includes(a.name));
-
-      document.getElementById('favorite-stories-list').innerHTML = favStories.length ? favStories.map(s => `
-        <div class="card"><h4>${s.title}</h4><button class="btn-ne          </h4><button class="btn-neon" onclick="openStory('${s.title}')">قراءة</button></div>
-      `).join('') : '<p style="color:var(--text-dim);">لا توجد قصص مفضلة.</p>';
-
-      document.getElementById('followed-authors-list').innerHTML = favAuthors.length ? favAuthors.map(a => `
-        <div class="card"><h4>${a.name}</h4><button class="btn-neon" onclick="openAuthor('${a.name}')">عرض</button></div>
-      `).join('') : '<p style="color:var(--text-dim);">لا يوجد كُتاب متابعون.</p>';
-    }
-
-    // --- 4. أدوات القراءة التفاعلية والتعليقات ---
     function changeFontSize(val) {
-      fontSize += val * 0.1;
+      fontSize += val;
+      if (fontSize < 0.7) fontSize = 0.7;
       document.documentElement.style.setProperty('--font-size-base', `${fontSize}rem`);
     }
 
-    function toggleTheme() { document.body.classList.toggle('theme-sepia'); }
-
     function toggleAutoScroll() {
       if(autoScrollInterval) {
-        clearInterval(autoScrollInterval); autoScrollInterval = null; alert('تم إيقاف التمرير التلقائي');
+        clearInterval(autoScrollInterval);
+        autoScrollInterval = null;
+        alert('تم إيقاف التمرير التلقائي');
       } else {
         autoScrollInterval = setInterval(() => { window.scrollBy(0, 1); }, 40);
       }
@@ -629,7 +294,9 @@
     function renderComments() {
       const db = getDB();
       const list = db.comments[currentStoryTitle] || [];
-      document.getElementById('comments-list').innerHTML = list.length ? list.map(c => `<div class="comment-box">${c}</div>`).join('') : '<p style="color:var(--text-dim);">لا توجد تعليقات بعد.</p>';
+      document.getElementById('comments-list').innerHTML = list.length ? 
+        list.map(c => `<div class="comment-box">${c}</div>`).join('') : 
+        '<p style="color:var(--text-dim);">لا توجد تعليقات بعد.</p>';
     }
 
     window.onscroll = function() {
@@ -639,7 +306,7 @@
       document.getElementById("reading-progress").style.width = scrolled + "%";
     };
 
-    window.addEventListener('storage', loadData);
+    window.onload = renderApp;
   </script>
 </body>
 </html>
