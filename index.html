@@ -76,7 +76,6 @@
       box-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue);
     }
 
-    /* الشاشة الترحيبية */
     #intro-screen {
       position: fixed;
       top: 0; left: 0;
@@ -102,7 +101,6 @@
       line-height: 1.6;
     }
 
-    /* التطبيق الرئيسي */
     #main-app {
       display: none;
       position: relative;
@@ -256,13 +254,11 @@
   <div id="reading-progress"></div>
   <canvas id="particles"></canvas>
 
-  <!-- الشاشة الترحيبية -->
   <div id="intro-screen">
     <div id="typewriter" class="typewriter-text"></div>
     <button class="btn-neon" onclick="nextIntro()">التالي <i class="fas fa-arrow-left"></i></button>
   </div>
 
-  <!-- التطبيق الرئيسي -->
   <div id="main-app">
     <header>
       <div>
@@ -271,7 +267,6 @@
       </div>
     </header>
 
-    <!-- الرئيسية -->
     <div id="home-screen" class="screen active">
       <input type="text" class="search-bar" id="search-box" placeholder="ابحث عن قصة أو كاتب..." onkeyup="filterAll()">
       
@@ -291,7 +286,6 @@
       <div class="cards-grid" id="stories-list"></div>
     </div>
 
-    <!-- صفحة الكاتب -->
     <div id="author-screen" class="screen">
       <button class="btn-neon" onclick="showScreen('home-screen')"><i class="fas fa-arrow-right"></i> رجوع</button>
       <div class="card" style="margin: 20px 0;">
@@ -304,7 +298,6 @@
       <div class="cards-grid" id="author-works"></div>
     </div>
 
-    <!-- صفحة القصة -->
     <div id="story-screen" class="screen">
       <button class="btn-neon" onclick="showScreen('home-screen')"><i class="fas fa-arrow-right"></i> الرئيسية</button>
       <h1 id="view-story-title" style="margin-top: 15px; color: var(--neon-blue);"></h1>
@@ -325,7 +318,6 @@
 
       <div class="story-body" id="view-story-body"></div>
 
-      <!-- نظام التعليقات -->
       <div class="card comments-sec" style="margin-top: 25px;">
         <h3><i class="fas fa-star"></i> التعليقات</h3>
         <textarea id="comment-input" placeholder="اكتب تعليقك حول القصة..." style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--neon-blue); background:rgba(0,0,0,0.3); color:#fff; margin:10px 0;"></textarea>
@@ -334,7 +326,6 @@
       </div>
     </div>
 
-    <!-- المفضلة -->
     <div id="favorites-screen" class="screen">
       <h3 style="color: var(--neon-blue); margin-bottom: 12px;"><i class="fas fa-user-check"></i> الكُتاب المتابعون</h3>
       <div class="cards-grid" id="followed-authors-list" style="margin-bottom: 25px;"></div>
@@ -342,26 +333,22 @@
       <div class="cards-grid" id="favorite-stories-list"></div>
     </div>
 
-    <!-- شريط التنقل السفلي -->
     <div class="bottom-nav">
       <button class="active" onclick="showScreen('home-screen'); setNavActive(this)"><i class="fas fa-home"></i>الرئيسية</button>
       <button onclick="showScreen('favorites-screen'); setNavActive(this)"><i class="fas fa-heart"></i>المفضلة</button>
     </div>
   </div>
 
-  <!-- Firebase Scripts (Compat Mode) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
   <script>
-    // --- 1. إعدادات الفايربيس ---
     const firebaseConfig = {
       databaseURL: "https://whisper-novels-default-rtdb.firebaseio.com"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // --- 2. الجسيمات التفاعلية ---
     const canvas = document.getElementById('particles');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -400,7 +387,6 @@
     }
     drawParticles();
 
-    // --- 3. الشاشة الترحيبية ---
     const intros = [
       "أهلاً بك في منصة همس الروايات... المنصة التي تجمع بين الخيال والواقع.",
       "لتشاهد الكثير من القصص والروايات والأحداث التي ستسعدك.",
@@ -432,12 +418,8 @@
       }
     }
     
-    window.onload = function() {
-      typeWriter();
-    };
-
-    // --- 4. المتغيرات العامة وحالة البيانات ---
-    let appData = { authors: [], stories: [], settings: { title: "همس الروايات" } };
+    window.onload = function() { typeWriter(); };
+      let appData = { authors: [], stories: [], settings: { title: "همس الروايات" } };
     let currentCategory = 'الكل';
     let currentStoryTitle = '';
     let currentAuthorName = '';
@@ -451,9 +433,7 @@
       };
     }
 
-    // --- 5. الاستماع والتزامن مع الفايربيس لايف ---
     function listenToFirebaseData() {
-      // جلب إعدادات الموقع
       db.ref('settings').on('value', snapshot => {
         const val = snapshot.val();
         if(val && val.title) {
@@ -462,14 +442,12 @@
         }
       });
 
-      // جلب الكُتاب
       db.ref('authors').on('value', snapshot => {
         const val = snapshot.val();
         appData.authors = val ? Object.values(val) : [];
         renderAuthors(appData.authors);
       });
 
-      // جلب القصص
       db.ref('stories').on('value', snapshot => {
         const val = snapshot.val();
         appData.stories = val ? Object.values(val) : [];
@@ -583,112 +561,91 @@
         uData.favs = uData.favs.filter(t => t !== currentStoryTitle);
       } else { uData.favs.push(currentStoryTitle); }
       localStorage.setItem('user_favs', JSON.stringify(uData.favs));
-      opfunction toggleFavorite() {
-  let uData = getUserData();
-  if (uData.favs.includes(currentStoryTitle)) {
-    uData.favs = uData.favs.filter(t => t !== currentStoryTitle);
-  } else {
-    uData.favs.push(currentStoryTitle);
-  }
-  localStorage.setItem('user_favs', JSON.stringify(uData.favs));
-  openStory(currentStoryTitle);
-}
+      openStory(currentStoryTitle);
+    }
 
-function toggleFollow() {
-  let uData = getUserData();
-  if (uData.follows.includes(currentAuthorName)) {
-    uData.follows = uData.follows.filter(a => a !== currentAuthorName);
-  } else {
-    uData.follows.push(currentAuthorName);
-  }
-  localStorage.setItem('user_follows', JSON.stringify(uData.follows));
-  openAuthor(currentAuthorName);
-}
+    function toggleFollow() {
+      let uData = getUserData();
+      if(uData.follows.includes(currentAuthorName)) {
+        uData.follows = uData.follows.filter(a => a !== currentAuthorName);
+      } else { uData.follows.push(currentAuthorName); }
+      localStorage.setItem('user_follows', JSON.stringify(uData.follows));
+      openAuthor(currentAuthorName);
+    }
 
-function renderFavorites() {
-  const uData = getUserData();
-  const favStories = appData.stories.filter(s => uData.favs.includes(s.title));
-  const favAuthors = appData.authors.filter(a => uData.follows.includes(a.name));
+    function renderFavorites() {
+      const uData = getUserData();
+      const favStories = appData.stories.filter(s => uData.favs.includes(s.title));
+      const favAuthors = appData.authors.filter(a => uData.follows.includes(a.name));
 
-  document.getElementById('favorite-stories-list').innerHTML = favStories.length ? favStories.map(s => `
-    <div class="card">
-      <h4>${s.title}</h4>
-      <button class="btn-neon" style="margin-top:10px;" onclick="openStory('${s.title}')">قراءة القصة</button>
-    </div>
-  `).join('') : '<p style="color:var(--text-dim);">لا توجد قصص مفضلة حالياً.</p>';
+      document.getElementById('favorite-stories-list').innerHTML = favStories.length ? favStories.map(s => `
+        <div class="card"><h4>${s.title}</h4><button class="btn-neon" style="margin-top:10px;" onclick="openStory('${s.title}')">قراءة القصة</button></div>
+      `).join('') : '<p style="color:var(--text-dim);">لا توجد قصص مفضلة.</p>';
 
-  document.getElementById('followed-authors-list').innerHTML = favAuthors.length ? favAuthors.map(a => `
-    <div class="card">
-      <h4>${a.name}</h4>
-      <button class="btn-neon" style="margin-top:10px;" onclick="openAuthor('${a.name}')">عرض الكاتب</button>
-    </div>
-  `).join('') : '<p style="color:var(--text-dim);">لا يوجد كُتاب متابعون حالياً.</p>';
-}
+      document.getElementById('followed-authors-list').innerHTML = favAuthors.length ? favAuthors.map(a => `
+        <div class="card"><h4>${a.name}</h4><button class="btn-neon" style="margin-top:10px;" onclick="openAuthor('${a.name}')">عرض الكاتب</button></div>
+      `).join('') : '<p style="color:var(--text-dim);">لا يوجد كُتاب متابعون.</p>';
+    }
 
-function listenToComments() {
-  if (!currentStoryTitle) return;
-  const safeKey = encodeURIComponent(currentStoryTitle).replace(/\./g, '%2E');
-  db.ref(`comments/${safeKey}`).on('value', snapshot => {
-    const commentsObj = snapshot.val();
-    const commentsList = commentsObj ? Object.values(commentsObj) : [];
-    renderComments(commentsList);
-  });
-    }function addComment() {
-  const input = document.getElementById('comment-input');
-  const text = input.value.trim();
-  if (!text || !currentStoryTitle) return;
+    function listenToComments() {
+      if(!currentStoryTitle) return;
+      const safeKey = encodeURIComponent(currentStoryTitle).replace(/\./g, '%2E');
+      db.ref(`comments/${safeKey}`).on('value', snapshot => {
+        const commentsObj = snapshot.val();
+        const commentsList = commentsObj ? Object.values(commentsObj) : [];
+        renderComments(commentsList);
+      });
+    }
 
-  const safeKey = encodeURIComponent(currentStoryTitle).replace(/\./g, '%2E');
-  db.ref(`comments/${safeKey}`).push({
-    text: text,
-    timestamp: firebase.database.ServerValue.TIMESTAMP
-  }).then(() => {
-    input.value = '';
-  });
-}
+    function addComment() {
+      const input = document.getElementById('comment-input');
+      const text = input.value.trim();
+      if(!text || !currentStoryTitle) return;
 
-function renderComments(list) {
-  document.getElementById('comments-list').innerHTML = list.length 
-    ? list.map(c => `<div class="comment-box">${typeof c === 'string' ? c : c.text}</div>`).join('') 
-    : '<p style="color:var(--text-dim);">لا توجد تعليقات بعد. كن أول من يعلق!</p>';
-}
+      const safeKey = encodeURIComponent(currentStoryTitle).replace(/\./g, '%2E');
+      db.ref(`comments/${safeKey}`).push({
+        text: text,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => {
+        input.value = '';
+      });
+    }
 
-function changeFontSize(val) {
-  fontSize += val * 0.1;
-  document.documentElement.style.setProperty('--font-size-base', `${fontSize}rem`);
-}
+    function renderComments(list) {
+      document.getElementById('comments-list').innerHTML = list.length 
+        ? list.map(c => `<div class="comment-box">${typeof c === 'string' ? c : c.text}</div>`).join('') 
+        : '<p style="color:var(--text-dim);">لا توجد تعليقات بعد.</p>';
+    }
 
-function toggleTheme() {
-  document.body.classList.toggle('theme-sepia');
-}
+    function changeFontSize(val) {
+      fontSize += val * 0.1;
+      document.documentElement.style.setProperty('--font-size-base', `${fontSize}rem`);
+    }
 
-function toggleAutoScroll() {
-  if (autoScrollInterval) {
-    clearInterval(autoScrollInterval);
-    autoScrollInterval = null;
-    alert('تم إيقاف التمرير التلقائي');
-  } else {
-    autoScrollInterval = setInterval(() => {
-      window.scrollBy(0, 1);
-    }, 40);
-  }function speakStory() {
-  const text = document.getElementById('view-story-body').innerText;
-  if (!text) return;
-  const speech = new SpeechSynthesisUtterance(text);
-  speech.lang = 'ar-SA';
-  window.speechSynthesis.speak(speech);
-}
+    function toggleTheme() { document.body.classList.toggle('theme-sepia'); }
 
-window.onscroll = function() {
-  let winScroll = document.documentElement.scrollTop;
-  let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-  let scrolled = (winScroll / height) * 100;
-  document.getElementById("reading-progress").style.width = scrolled + "%";
-};
+    function toggleAutoScroll() {
+      if(autoScrollInterval) {
+        clearInterval(autoScrollInterval); autoScrollInterval = null; alert('تم إيقاف التمرير التلقائي');
+      } else {
+        autoScrollInterval = setInterval(() => { window.scrollBy(0, 1); }, 40);
+      }
+    }
+
+    function speakStory() {
+      const text = document.getElementById('view-story-body').innerText;
+      if(!text) return;
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.lang = 'ar-SA';
+      window.speechSynthesis.speak(speech);
+    }
+
+    window.onscroll = function() {
+      let winScroll = document.documentElement.scrollTop;
+      let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      let scrolled = (winScroll / height) * 100;
+      document.getElementById("reading-progress").style.width = scrolled + "%";
+    };
   </script>
 </body>
 </html>
-
-}
-  
-    
